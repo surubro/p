@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thermal Printer - Custom Text with Controls</title>
+    <style>
+        @page {
+            size: 80mm 52mm;
+            margin: 0mm !important;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            background: #f4f4f4;
+        }
+        
+        .input-area {
+            max-width: 420px;
+            margin: 20px auto;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        textarea {
+            width: 100%;
+            height: 140px;
+            font-family: 'Courier New', monospace;
+            font-size: 15px;
+            padding: 10px;
+            border: 2px solid #333;
+            border-radius: 6px;
+            resize: vertical;
+            line-height: 1.4;
+        }
+        
+        .controls {
+            margin: 12px 0;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 6px;
+        }
+        
+        .control-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+        }
+        
+        button, select, input[type="range"] {
+            padding: 8px;
+            font-size: 14px;
+        }
+        
+        .print-btn {
+            background: #28a745;
+            color: white;
+            width: 100%;
+            padding: 14px;
+            font-size: 18px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .label {
+            width: 72mm;
+            height: 46mm;
+            margin: 20px auto;
+            background: white;
+            border: 2px solid #222;
+            border-radius: 8px;
+            padding: 3.5mm 3.5mm;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+            overflow: hidden;
+        }
+        
+        .label-content {
+            font-family: 'Courier New', monospace;
+            font-size: 14.5px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin: 0;
+        }
+        
+        @media print {
+            @page {
+                size: 80mm 52mm;
+                margin: 0mm !important;
+            }
+            body * { visibility: hidden; }
+            .label, .label * { visibility: visible; }
+            .label {
+                position: absolute;
+                left: 4mm;
+                top: 2mm;
+                width: 72mm;
+                height: 46mm;
+                box-shadow: none;
+                border: none;
+                margin: 0;
+                padding: 3.5mm 3.5mm;
+                page-break-inside: avoid !important;
+            }
+            .input-area { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="input-area">
+        <h2>Thermal Printer Custom Label</h2>
+        
+        <p><strong>Enter your text:</strong></p>
+        <textarea id="textInput" placeholder="Type anything...">Chicken Wings
+Best Before: Jun 22, 2026 04:01 PM
+Keep Refrigerated</textarea>
+        
+        <div class="controls">
+            <div class="control-row">
+                <label><strong>Font Size:</strong></label>
+                <input type="range" id="fontSize" min="10" max="22" value="15" step="1">
+                <span id="sizeValue">15px</span>
+            </div>
+            
+            <div class="control-row">
+                <label><strong>Bold:</strong></label>
+                <input type="checkbox" id="boldCheck" checked>
+            </div>
+            
+            <div class="control-row">
+                <label><strong>Align:</strong></label>
+                <select id="alignSelect">
+                    <option value="left">Left</option>
+                    <option value="center" selected>Center</option>
+                    <option value="right">Right</option>
+                </select>
+            </div>
+        </div>
+        
+        <button onclick="printLabel()" class="print-btn">🖨️ Print (Single Page)</button>
+        
+        <p style="font-size: 13px; margin-top: 12px; color: #555;">
+            Adjust options above • Minimal margins • 1 page only
+        </p>
+    </div>
+
+    <div class="label" id="labelPreview">
+        <div class="label-content" id="content">
+Chicken Wings
+Best Before: Jun 22, 2026 04:01 PM
+Keep Refrigerated
+        </div>
+    </div>
+
+    <script>
+        const textarea = document.getElementById('textInput');
+        const content = document.getElementById('content');
+        const fontSizeSlider = document.getElementById('fontSize');
+        const sizeValue = document.getElementById('sizeValue');
+        const boldCheck = document.getElementById('boldCheck');
+        const alignSelect = document.getElementById('alignSelect');
+
+        function updatePreview() {
+            content.textContent = textarea.value || "Your custom text here";
+            
+            // Font size
+            const size = fontSizeSlider.value;
+            content.style.fontSize = size + 'px';
+            sizeValue.textContent = size + 'px';
+            
+            // Bold
+            content.style.fontWeight = boldCheck.checked ? 'bold' : 'normal';
+            
+            // Alignment
+            content.style.textAlign = alignSelect.value;
+        }
+
+        function printLabel() {
+            updatePreview();
+            window.print();
+        }
+
+        // Live updates
+        textarea.addEventListener('input', updatePreview);
+        fontSizeSlider.addEventListener('input', updatePreview);
+        boldCheck.addEventListener('change', updatePreview);
+        alignSelect.addEventListener('change', updatePreview);
+
+        // Initial load
+        window.onload = updatePreview;
+    </script>
+</body>
+</html>
